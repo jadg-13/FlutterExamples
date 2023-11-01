@@ -12,6 +12,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      theme: ThemeData(
+        fontFamily: "Lobster-Regular",
+      ),
       home: MyHomePage(),
     );
   }
@@ -45,8 +48,10 @@ class MyHomePage extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 final img = items[index];
                 return ListTile(
-                    title: Text("Imagen ${index + 1}"),
-                    subtitle: Text("Subtitle $img"),
+                    title: Text("Imagen ${index + 1}",
+                    style: const TextStyle(fontFamily: "EduTASBeginner-VariableFont_wght")),
+                    subtitle: Text("Subtitle $img",
+                    style: const TextStyle(fontFamily: "Kanit-Black")),
                     leading: Image.network(img),
                     trailing: IconButton(
                       icon: Icon(Icons.remove_red_eye_sharp),
@@ -67,14 +72,15 @@ class MyHomePage extends StatelessWidget {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Imagen"),
+            title: const Text("Imagen"
+            , style: TextStyle(fontFamily: "EduTASBeginner-VariableFont_wght")),
             content: Image.network(img),
             actions: [
-              TextButton(
+              IconButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text("Cerrar"))
+                  icon: Icon(Icons.close))
             ],
           );
         });
