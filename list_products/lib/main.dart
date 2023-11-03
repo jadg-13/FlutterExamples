@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Listado',
+      title: 'Productos',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -115,8 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                         ),
                       ),
-
-
                     );
                   },
                 ),
@@ -129,6 +127,24 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void addProduct() {
+    if (_name.isEmpty || _description.isEmpty || _price == 0 || _stock == 0) {
+      showDialog(context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Todos los campos son obligatorios'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cerrar'),
+                )
+              ],
+            );
+          });
+      return;
+    }
     products.add(Product(_name, _description, _price, _stock));
     _name = '';
     _description = '';
@@ -142,7 +158,9 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(product.name),
-            content: Text(product.description + "\n" + product.price.toString() + "\n" + product.stock.toString()),
+            content: Text("Descripción: ${product.description} \nPrecio C\$: "
+                "${product.price.toString()} \nExistencia: ${product
+                .stock.toString()}"),
             actions: [
               IconButton(
                 onPressed: (){
