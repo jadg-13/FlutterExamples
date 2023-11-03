@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     String _startValue = "Bytes";
     String _endValue = "Bytes";
     double _value1 = 0.0;
-    double _value2 = 0.0;
+
     double _result = 0.0;
 
     @override
@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   }).toList(), onChanged: (String? value) {
                   setState(() {
-                    _startValue = value!;
+                    _endValue = value!;
                   });
                 },
 
