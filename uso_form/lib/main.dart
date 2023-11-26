@@ -58,9 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelText: 'Nombre',
                 ),
                 onSaved: (value) {
-                  setState(() {
                     name = value!;
-                  });
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -74,9 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelText: 'Apellido',
                 ),
                 onSaved: (value) {
-                  setState(() {
                     lastName = value!;
-                  });
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -91,9 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
-                  setState(() {
-                    age = int.parse(value);
-                  });
+                  age = int.parse(value);
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -109,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (!formKey.currentState!.validate()) {
                     return;
                   }
+                  formKey.currentState!.save();
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -128,6 +123,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 child: const Text('Enviar'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  formKey.currentState!.reset();
+
+                },
+                child: const Text('Limpiar'),
               ),
             ],
           ),
