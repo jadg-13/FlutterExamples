@@ -35,6 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String lastName = '';
   int age = 0;
 
+  final formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
 
@@ -48,26 +50,39 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
+          key: formKey,
           child: Column(
             children: [
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Nombre',
                 ),
-                onChanged: (value) {
+                onSaved: (value) {
                   setState(() {
-                    name = value;
+                    name = value!;
                   });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese un nombre';
+                  }
+                  return null;
                 },
               ),
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Apellido',
                 ),
-                onChanged: (value) {
+                onSaved: (value) {
                   setState(() {
-                    lastName = value;
+                    lastName = value!;
                   });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese un apellido';
+                  }
+                  return null;
                 },
               ),
               TextFormField(
@@ -80,31 +95,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     age = int.parse(value);
                   });
                 },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese una edad';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (name.isEmpty || lastName.isEmpty || age == 0) {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text('Error'),
-                          content: const Text('Por favor ingrese todos los datos'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Cerrar'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
+
+                  if (!formKey.currentState!.validate()) {
                     return;
                   }
-
                   showDialog(
                     context: context,
                     builder: (context) {
