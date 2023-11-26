@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'models/person.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -34,6 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String name = '';
   String lastName = '';
   int age = 0;
+
+  List<Person> persons = [];
 
   final formKey = GlobalKey<FormState>();
 
@@ -97,40 +101,71 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-
-                  if (!formKey.currentState!.validate()) {
-                    return;
-                  }
-                  formKey.currentState!.save();
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Datos'),
-                        content: Text('Nombre: $name\nApellido: $lastName\nEdad: $age años. \n${age >= 18 ? 'Es mayor de edad' : 'Es menor de edad'}'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Cerrar'),
-                          ),
-                        ],
-                      );
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        formKey.currentState!.save();
+                        addPerson(Person(
+                          name: name,
+                          lastName: lastName,
+                          age: age,
+                        ));
+                      }
                     },
-                  );
-                },
-                child: const Text('Enviar'),
+                    child: const Text('Agregar'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      formKey.currentState!.reset();
+                    },
+                    child: const Text('Limpiar'),
+                  ),
+                  //borrar los registros
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        persons = [];
+                      });
+                    },
+                    child: const Text('Borrar'),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  formKey.currentState!.reset();
-
-                },
-                child: const Text('Limpiar'),
+              //listado de personas
+              Expanded(
+                child: ListView.builder(
+                  itemCount: persons.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: ListTile(
+                        title: Text(persons[index].name),
+                        subtitle: Text(persons[index].lastName),
+                        trailing: Text(persons[index].age.toString()),
+                        //eliminar registro
+                        onLongPress: () {
+                          setState(() {
+                            persons.removeAt(index);
+                          });
+                        },
+                        //Monstrar mensaje de mayor o menor de edad
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text(persons[index].getMessage()),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -138,4 +173,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+ //agregar y actualizar listado
+  void addPerson(Person person) {
+    setState(() {
+      persons.add(person);
+    });
+  }
+
 }
