@@ -13,9 +13,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Registro Personas',
+      //Quitar icono de debug
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Registro de Personas'),
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
+
   final String title;
 
   @override
@@ -32,10 +34,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   String name = '';
   String lastName = '';
   int age = 0;
+
+  final FocusNode _nameFocusNode = FocusNode();
 
   List<Person> persons = [];
 
@@ -43,14 +46,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
-
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-        title: Text(widget.title),
-      ),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+          //icono de la app
+          leading: IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () {
+              showAuthorMessage();
+            },
+          )),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
@@ -58,11 +64,12 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             children: [
               TextFormField(
+                focusNode: _nameFocusNode,
                 decoration: const InputDecoration(
                   labelText: 'Nombre',
                 ),
                 onSaved: (value) {
-                    name = value!;
+                  name = value!;
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -76,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelText: 'Apellido',
                 ),
                 onSaved: (value) {
-                    lastName = value!;
+                  lastName = value!;
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -104,7 +111,8 @@ class _MyHomePageState extends State<MyHomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
+                  //boton para agregar a la lista
+                  IconButton(
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         formKey.currentState!.save();
@@ -113,24 +121,22 @@ class _MyHomePageState extends State<MyHomePage> {
                           lastName: lastName,
                           age: age,
                         ));
+                        //limpiar los campos
+                        formKey.currentState!.reset();
+                        _nameFocusNode.requestFocus();
                       }
                     },
-                    child: const Text('Agregar'),
+                    icon: const Icon(Icons.add, color: Colors.green),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      formKey.currentState!.reset();
-                    },
-                    child: const Text('Limpiar'),
-                  ),
-                  //borrar los registros
-                  ElevatedButton(
+                  //borrar los registros de la lista
+                  IconButton(
                     onPressed: () {
                       setState(() {
-                        persons = [];
+                        persons.clear();
                       });
                     },
-                    child: const Text('Borrar'),
+                    //icono de borrar color rojo
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                 ],
               ),
@@ -142,27 +148,30 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemBuilder: (context, index) {
                     return Card(
                       child: ListTile(
-                        title: Text(persons[index].name),
-                        subtitle: Text(persons[index].lastName),
-                        trailing: Text(persons[index].age.toString()),
-                        //eliminar registro
-                        onLongPress: () {
-                          setState(() {
-                            persons.removeAt(index);
-                          });
-                        },
-                        //Monstrar mensaje de mayor o menor de edad
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text(persons[index].getMessage()),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                          title: Text(
+                              '${persons[index].name} ${persons[index].lastName}'),
+                          subtitle: Text(persons[index].age.toString()),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    showPersonMessage(context, persons[index]);
+                                  });
+                                },
+                                icon: const Icon(Icons.remove_red_eye_outlined, color: Colors.blue),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    deletePerson(index);
+                                  });
+                                },
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                              ),
+                            ],
+                          )),
                     );
                   },
                 ),
@@ -174,11 +183,80 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
- //agregar y actualizar listado
+  //agregar y actualizar listado
   void addPerson(Person person) {
     setState(() {
       persons.add(person);
     });
   }
 
+//eliminar registro
+  void deletePerson(int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Eliminar'),
+          content: const Text('¿Está seguro de eliminar el registro?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  persons.removeAt(index);
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Si'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  //mensaje de mayor o menor de edad
+  void showPersonMessage(BuildContext context, Person person) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('${person.name} ${person.lastName}'),
+          content: Text(person.getMessage()),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showAuthorMessage() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Registro de Personas'),
+            content: const Text('Autor: JADG1308'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cerrar'),
+              ),
+            ],
+          );
+        });
+  }
 }
